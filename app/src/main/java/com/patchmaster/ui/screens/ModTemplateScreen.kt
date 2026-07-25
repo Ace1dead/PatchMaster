@@ -92,7 +92,7 @@ fun ModTemplateScreen(
                 }
             }
 
-            HorizontalDivider()
+            Divider()
 
             // Template list
             if (filtered.isEmpty()) {
@@ -118,6 +118,7 @@ fun ModTemplateScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun TemplateCard(
     template: ModTemplate,

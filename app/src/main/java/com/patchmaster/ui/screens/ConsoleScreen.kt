@@ -121,7 +121,7 @@ fun ConsoleScreen(onNavigateBack: () -> Unit) {
                 if (successCount > 0) Text("$successCount success", fontSize = 11.sp, color = MaterialTheme.colorScheme.primary)
             }
 
-            HorizontalDivider()
+            Divider()
 
             // Log entries
             Column(

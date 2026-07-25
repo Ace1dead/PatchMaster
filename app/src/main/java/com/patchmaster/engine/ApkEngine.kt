@@ -275,7 +275,7 @@ class ApkEngine(private val context: Context) {
 
             // Repack everything into a new APK
             val tempApk = File(inputDir, "unsigned.apk")
-            repackDirectory(dexDir, unknownDir, libDir, File(inputDir, "manifest"), tempApk)
+            repackDirectory(dexDir, unknownDir, libDir, File(inputDir, "manifest"), outputFile = tempApk)
 
             // Align
             val alignedApk = File(inputDir, "aligned.apk")
@@ -467,7 +467,7 @@ class ApkEngine(private val context: Context) {
     private fun applyAction(decompiledDir: File, action: ModAction) {
         when (action) {
             is ModAction.ManifestEdit -> {
-                val mf = File(decompiledDir, "AndroidManifest.xml")
+                var mf = File(decompiledDir, "AndroidManifest.xml")
                 if (!mf.exists()) mf = File(decompiledDir, "manifest/AndroidManifest.xml")
                 if (mf.exists()) ManifestEditor.edit(mf, action)
             }

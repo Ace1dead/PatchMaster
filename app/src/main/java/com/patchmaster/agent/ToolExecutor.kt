@@ -28,7 +28,7 @@ class ToolExecutor {
             "analyze" -> analyzeApk(args["apk_path"] ?: return error("apk_path required"))
             "run_script" -> runScript(args)
             "search_string" -> searchInSmali(args)
-            "read_file" -> readFile(args["path"] ?: return error("path required"))
+            "read_file" -> readFile(args)
             "write_file" -> writeFile(args)
             "shell" -> runShell(args["cmd"] ?: return error("cmd required"))
             "list_smali" -> listSmaliFiles(args["dir"] ?: return error("dir required"))
@@ -49,7 +49,7 @@ class ToolExecutor {
 
     private fun decompileApk(apkPath: String): ExecResult {
         val workDir = File(engine.getWorkDir(), "decompiled")
-        val success = apkEngine.decompileApk(apkPath, workDir)
+        val success = apkEngine.fullDecompile(apkPath, workDir)
         return if (success) execResult(0, workDir.absolutePath)
         else execResult(1, "Decompilation failed")
     }

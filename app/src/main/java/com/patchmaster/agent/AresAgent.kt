@@ -142,11 +142,10 @@ class AresAgent(
         val description: String = ""
     )
 
+    private data class IntentMatch(val name: String, val score: Float, val templates: List<ModTemplate>)
+
     private fun generateActionPlan(input: String): ActionPlan {
         val lower = input.lowercase()
-
-        // Intent detection with confidence scoring
-        data class Intent(val name: String, val score: Float, val templates: List<ModTemplate>)
 
         val intents = listOf(
             detectAdRemoval(lower),
@@ -162,9 +161,9 @@ class AresAgent(
             detectInstall(lower),
             detectHelp(lower),
             detectMod(lower)
-        ).filter { it != null }
+        ).filterNotNull()
 
-        val bestIntent = intents.maxByOrNull { it!!.score }
+        val bestIntent = intents.maxByOrNull { it.score }
             ?: return ActionPlan("general_assistance", 0.5f,
                 "I can help with APK modification. Available options: remove ads, unlock premium, bypass licenses, enable debugging, modify permissions, or analyze an APK.",
                 listOf(PlanStep("get_skill", mapOf(), "Loading modding knowledge")),
@@ -181,12 +180,17 @@ class AresAgent(
         )
     }
 
-    private fun detectAdRemoval(lower: String): Intent? {
+    private fun scoreFor(lower: String, keywords: List<String>, weight: Float): Float {
+        val count = keywords.count { lower.contains(it) }
+        return count * weight
+    }
+
+    private fun detectAdRemoval(lower: String): IntentMatch? {
         val keywords = listOf("remove ad", "block ad", "ad free", "no ads", "adblock", "ad removal",
             "disable ad", "stop ad", "advert", "remove advertisement")
-        val score = keywords.sumOf { if (lower.contains(it)) 0.2f else 0f }
+        val score = scoreFor(lower, keywords, 0.2f)
         if (score == 0f) return null
-        return Intent("remove_ads", minOf(score, 1.0f),
+        return IntentMatch("remove_ads", minOf(score, 1.0f),
             listOfNotNull(
                 ModTemplateLibrary.findById("ads_remove_all"),
                 ModTemplateLibrary.findById("ads_remove_google"),
@@ -194,12 +198,12 @@ class AresAgent(
             ))
     }
 
-    private fun detectPremiumUnlock(lower: String): Intent? {
+    private fun detectPremiumUnlock(lower: String): IntentMatch? {
         val keywords = listOf("premium", "unlock", "pro", "vip", "paid feature", "crack",
             "full version", "unlimited", "premuim", "ispremium", "ispro")
-        val score = keywords.sumOf { if (lower.contains(it)) 0.15f else 0f }
+        val score = scoreFor(lower, keywords, 0.15f)
         if (score == 0f) return null
-        return Intent("unlock_premium", minOf(score, 1.0f),
+        return IntentMatch("unlock_premium", minOf(score, 1.0f),
             listOfNotNull(
                 ModTemplateLibrary.findById("premium_force_true"),
                 ModTemplateLibrary.findById("premium_iap_patch"),
@@ -209,12 +213,12 @@ class AresAgent(
             ))
     }
 
-    private fun detectLicenseBypass(lower: String): Intent? {
+    private fun detectLicenseBypass(lower: String): IntentMatch? {
         val keywords = listOf("license", "lvl", "bypass license", "remove license", "crack license",
             "verification", "signature check", "validate", "allow")
-        val score = keywords.sumOf { if (lower.contains(it)) 0.15f else 0f }
+        val score = scoreFor(lower, keywords, 0.15f)
         if (score == 0f) return null
-        return Intent("bypass_license", minOf(score, 1.0f),
+        return IntentMatch("bypass_license", minOf(score, 1.0f),
             listOfNotNull(
                 ModTemplateLibrary.findById("license_crack"),
                 ModTemplateLibrary.findById("premium_lvl_bypass"),
@@ -223,43 +227,43 @@ class AresAgent(
             ))
     }
 
-    private fun detectIAPPatch(lower: String): Intent? {
+    private fun detectIAPPatch(lower: String): IntentMatch? {
         val keywords = listOf("iap", "in-app", "purchase", "billing", "buy", "shopping", "store",
             "google play", "payment", "subscribe")
-        val score = keywords.sumOf { if (lower.contains(it)) 0.12f else 0f }
+        val score = scoreFor(lower, keywords, 0.12f)
         if (score == 0f) return null
-        return Intent("patch_iap", minOf(score, 1.0f),
+        return IntentMatch("patch_iap", minOf(score, 1.0f),
             listOfNotNull(
                 ModTemplateLibrary.findById("premium_iap_patch"),
                 ModTemplateLibrary.findById("premium_subscription_bypass")
             ))
     }
 
-    private fun detectDebugEnable(lower: String): Intent? {
+    private fun detectDebugEnable(lower: String): IntentMatch? {
         val keywords = listOf("debug", "debuggable", "enable debug", "make debuggable")
-        val score = keywords.sumOf { if (lower.contains(it)) 0.2f else 0f }
+        val score = scoreFor(lower, keywords, 0.2f)
         if (score == 0f) return null
-        return Intent("enable_debug", minOf(score, 1.0f),
+        return IntentMatch("enable_debug", minOf(score, 1.0f),
             listOfNotNull(
                 ModTemplateLibrary.findById("debug_enable"),
                 ModTemplateLibrary.findById("debug_log_enable")
             ))
     }
 
-    private fun detectSSLBypass(lower: String): Intent? {
+    private fun detectSSLBypass(lower: String): IntentMatch? {
         val keywords = listOf("ssl", "pinning", "certificate", "https", "security", "network config",
             "cleartext", "bypass ssl")
-        val score = keywords.sumOf { if (lower.contains(it)) 0.15f else 0f }
+        val score = scoreFor(lower, keywords, 0.15f)
         if (score == 0f) return null
-        return Intent("bypass_ssl", minOf(score, 1.0f),
+        return IntentMatch("bypass_ssl", minOf(score, 1.0f),
             listOfNotNull(ModTemplateLibrary.findById("debug_ssl_bypass")))
     }
 
-    private fun detectRootBypass(lower: String): Intent? {
+    private fun detectRootBypass(lower: String): IntentMatch? {
         val keywords = listOf("root", "detection", "root check", "jailbreak", "su", "superuser")
-        val score = keywords.sumOf { if (lower.contains(it)) 0.15f else 0f }
+        val score = scoreFor(lower, keywords, 0.15f)
         if (score == 0f) return null
-        return Intent("disable_root_check", minOf(score, 1.0f),
+        return IntentMatch("disable_root_check", minOf(score, 1.0f),
             listOfNotNull(
                 ModTemplateLibrary.findById("sec_disable_root_check"),
                 ModTemplateLibrary.findById("sec_disable_emulator_check"),
@@ -267,56 +271,55 @@ class AresAgent(
             ))
     }
 
-    private fun detectPermissionChange(lower: String): Intent? {
+    private fun detectPermissionChange(lower: String): IntentMatch? {
         if ("permission" !in lower) return null
         val remove = "remove" in lower || "delete" in lower
         val add = "add" in lower || "grant" in lower
         val internet = "internet" in lower
-        return Intent("modify_permissions", 0.8f,
+        return IntentMatch("modify_permissions", 0.8f,
             listOfNotNull(
                 if (internet) ModTemplateLibrary.findById("perm_remove_internet") else null,
                 if (remove) ModTemplateLibrary.findById("perm_remove_all") else null
             ))
     }
 
-    private fun detectAnalysis(lower: String): Intent? {
+    private fun detectAnalysis(lower: String): IntentMatch? {
         val keywords = listOf("analyze", "analyse", "scan", "inspect", "info", "what is this",
             "details", "show", "examine")
-        val score = keywords.sumOf { if (lower.contains(it)) 0.2f else 0f }
+        val score = scoreFor(lower, keywords, 0.2f)
         if (score == 0f) return null
-        return Intent("analyze_apk", minOf(score, 1.0f), emptyList())
+        return IntentMatch("analyze_apk", minOf(score, 1.0f), emptyList())
     }
 
-    private fun detectDecompile(lower: String): Intent? {
+    private fun detectDecompile(lower: String): IntentMatch? {
         val keywords = listOf("decompile", "extract", "unpack", "open", "view code", "view smali")
-        val score = keywords.sumOf { if (lower.contains(it)) 0.2f else 0f }
+        val score = scoreFor(lower, keywords, 0.2f)
         if (score == 0f) return null
-        return Intent("decompile_apk", minOf(score, 1.0f), emptyList())
+        return IntentMatch("decompile_apk", minOf(score, 1.0f), emptyList())
     }
 
-    private fun detectInstall(lower: String): Intent? {
+    private fun detectInstall(lower: String): IntentMatch? {
         val keywords = listOf("install", "push", "deploy", "side load", "sideload")
-        val score = keywords.sumOf { if (lower.contains(it)) 0.25f else 0f }
+        val score = scoreFor(lower, keywords, 0.25f)
         if (score == 0f) return null
-        return Intent("install_apk", minOf(score, 1.0f), emptyList())
+        return IntentMatch("install_apk", minOf(score, 1.0f), emptyList())
     }
 
-    private fun detectHelp(lower: String): Intent? {
+    private fun detectHelp(lower: String): IntentMatch? {
         val keywords = listOf("help", "what can you", "how to", "guide", "tutorial", "capabilities",
             "features", "what do", "what are", "commands")
-        val score = keywords.sumOf { if (lower.contains(it)) 0.2f else 0f }
+        val score = scoreFor(lower, keywords, 0.2f)
         if (score == 0f) return null
-        return Intent("show_help", minOf(score, 1.0f), emptyList())
+        return IntentMatch("show_help", minOf(score, 1.0f), emptyList())
     }
 
-    private fun detectMod(lower: String): Intent? {
+    private fun detectMod(lower: String): IntentMatch? {
         val keywords = listOf("mod", "patch", "hack", "tweak", "change", "edit", "customize",
             "modify", "alter")
-        val score = keywords.sumOf { if (lower.contains(it)) 0.1f else 0f }
+        val score = scoreFor(lower, keywords, 0.1f)
         if (score == 0f) return null
-        // Let pattern matcher suggest templates
         val suggestions = patternMatcher.suggestTemplatesForGoal(lower)
-        return Intent("custom_mod", minOf(score, 0.6f), suggestions)
+        return IntentMatch("custom_mod", minOf(score, 0.6f), suggestions)
     }
 
     private fun buildStepsForIntent(intent: String, templates: List<ModTemplate>): List<PlanStep> {

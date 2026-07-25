@@ -92,13 +92,13 @@ APK (ZIP container)
 
 ### 7. Change Package Name (Rebranding)
 - Change `package="com.original.package"` in AndroidManifest.xml
-- Update all `.R` references: `Lcom/original/package/R$layout;` → `Lcom/new/package/R$layout;`
+- Update all `.R` references: `Lcom/original/package/R${'$'}layout;` → `Lcom/new/package/R${'$'}layout;`
 - Rename smali directories: `smali/com/original/package/` → `smali/com/new/package/`
 - Update any hardcoded package strings in smali
 
 ### 8. Inject Toast/Dialog/Hook
 - Add invoke-static for `android/widget/Toast;->makeText` in target method
-- Add invoke-static for `android/app/AlertDialog$Builder` to show a message
+- Add invoke-static for `android/app/AlertDialog${'$'}Builder` to show a message
 - Inject Log.d calls for debugging: `invoke-static {v0, v1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I`
 
 ## Smali Quick Reference

@@ -42,7 +42,7 @@ fun ApkDetailScreen(
             val info = engine.analyzeApk(apkPath)
             apkInfo = info
             if (info != null) {
-                console.info("Analyzed: ${info.label} (${info.packageName})", "analyzer")
+                console.log("Analyzed: ${info.label} (${info.packageName})", "analyzer")
             } else {
                 errorMsg = "Failed to analyze APK"
                 console.error("Failed to analyze APK: $apkPath")
@@ -152,7 +152,7 @@ private fun ApkInfoContent(info: ApkInfo, modifier: Modifier = Modifier) {
                     Spacer(Modifier.height(4.dp))
                     Text(info.packageName, style = MaterialTheme.typography.bodyMedium, fontFamily = FontFamily.Monospace, color = MaterialTheme.colorScheme.primary)
                     Spacer(Modifier.height(8.dp))
-                    HorizontalDivider()
+                    Divider()
                     Spacer(Modifier.height(8.dp))
                     InfoRow("Version", "${info.versionName} (${info.versionCode})")
                     InfoRow("Size", "${info.fileSize / 1024} KB")
