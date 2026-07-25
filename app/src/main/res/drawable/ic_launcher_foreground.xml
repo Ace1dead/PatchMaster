@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Background circle -->
+    <path
+        android:fillColor="#00BCD4"
+        android:pathData="M54,54m-40,0a40,40 0,1 1,80 0a40,40 0,1 1,-80 0" />
+    <!-- "P" letter -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M46,36L46,72L52,72L52,58L60,58Q68,58 68,47Q68,36 60,36ZM52,42L58,42Q62,42 62,47Q62,52 58,52L52,52Z" />
+    <!-- Wrench icon hint -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M70,62L64,56Q63,57 62,57L62,57Q60,57 59,56L56,53Q57,50 56,48L56,48Q55,46 53,46L53,46Q51,45 51,43L51,43Q51,42 52,41L52,41L48,37Q46,39 44,43L44,43Q43,47 45,50L42,53L42,53Q43,56 45,58L45,58Q48,60 51,59L54,62Q53,63 53,65L53,65Q53,67 55,69L55,69L61,75ZM70,62L75,67"
+        android:strokeWidth="2"
+        android:strokeColor="#FFFFFF" />
+</vector>
