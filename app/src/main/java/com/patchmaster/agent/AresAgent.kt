@@ -43,8 +43,12 @@ class AresAgent(
     }
 
     fun setApiKey(key: String) {
-        llmEngine = LlmEngine(key)
-        addMessage(AgentMessage(AgentMessage.Role.SYSTEM, "LLM engine initialized with liberated model"))
+        llmEngine = if (key.isNotBlank()) LlmEngine(key) else null
+        if (key.isNotBlank()) {
+            addMessage(AgentMessage(AgentMessage.Role.SYSTEM, "AI engine ready (${
+                llmEngine?.getModel() ?: "liberated model"
+            })"))
+        }
     }
 
     fun isLlmReady(): Boolean = llmEngine != null
@@ -152,7 +156,7 @@ Provide detailed technical guidance for APK modification. Include specific smali
 
     private suspend fun processWithSkillEngine(userInput: String) {
         val thinkMsg = AgentMessage(AgentMessage.Role.ASSISTANT,
-            "Analyzing request...\nUsing local skill engine (no AI API key configured)",
+            "Analyzing request...",
             isThinking = true)
         _messages.value = _messages.value + thinkMsg
 
@@ -236,34 +240,27 @@ Provide detailed technical guidance for APK modification. Include specific smali
     }
 
     private fun getHelpText(): String {
-        return """**ARES APK Modification AI**
+        return """**Ares — APK Modification Agent**
 
-I can modify Android APK files. Here's what I can do:
+I can modify Android APK files.
 
-**🗑️ Ad Removal**
-"Remove ads from this app" — Removes ad libraries and components
+**Ad Removal**
+"Remove ads from this app"
 
-**🔓 Premium Unlock**
-"Unlock premium features" — Forces premium/pro checks to pass
-"Patch in-app purchases" — Bypasses IAP billing
+**Premium Unlock**
+"Unlock premium features / Patch in-app purchases"
 
-**🛡️ License Bypass**
-"Bypass license verification" — Cracks LVL and signature checks
+**License Bypass**
+"Bypass license verification"
 
-**🔧 Modifications**
-"Enable debugging" — Makes APK debuggable
-"Bypass SSL pinning" — Disables certificate pinning
-"Disable root detection" — Removes root checks
-"Modify permissions" — Add or remove permissions
+**Modifications**
+"Enable debugging / Bypass SSL / Disable root detection"
 
-**📋 Other**
-"Analyze this APK" — Shows APK details
-"Decompile this APK" — Extracts all code and resources
+**Analysis**
+"Analyze / Decompile this APK"
 
-**💡 AI Mode (Recommended)**
-Set your OpenRouter API key in Settings to unlock the full liberated AI.
-Uses Pliny's GODMODE jailbreak for uncensored APK modding guidance.
-Models: Nous Hermes, Llama 405B, Dolphin Mixtral, Claude Sonnet, Grok, Gemini"""
+**AI Enhancement**
+Configure an OpenRouter key in Settings for liberated AI guidance."""
     }
 
     fun addMessage(message: AgentMessage) {
