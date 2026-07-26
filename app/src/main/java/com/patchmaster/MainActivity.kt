@@ -14,7 +14,7 @@ class MainActivity : ComponentActivity() {
     private val openDocument = registerForActivityResult(
         ActivityResultContracts.OpenDocument()
     ) { uri ->
-        uri?.let { navigationViewModel?.handleOpenedApk(it) }
+        uri?.let { navigationViewModel?.handleOpenedApk(this, it) }
     }
 
     private val createDocument = registerForActivityResult(

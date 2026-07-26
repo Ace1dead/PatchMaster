@@ -1,5 +1,6 @@
 package com.patchmaster.ui.screens
 
+import android.os.Build
 import android.os.Environment
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -11,6 +12,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import java.io.File
@@ -21,14 +23,26 @@ fun FileBrowserScreen(
     onApkSelected: (String) -> Unit,
     onNavigateBack: () -> Unit
 ) {
-    val root = Environment.getExternalStorageDirectory()
+    val context = LocalContext.current
+    val root = if (Build.VERSION.SDK_INT >= 30) {
+        context.getExternalFilesDir(null)?.parentFile?.parentFile
+            ?: Environment.getExternalStorageDirectory()
+    } else {
+        Environment.getExternalStorageDirectory()
+    }
     var currentDir by remember { mutableStateOf(root) }
     var entries by remember { mutableStateOf(listOf<File>()) }
+    var errorMsg by remember { mutableStateOf("") }
 
     LaunchedEffect(currentDir) {
-        entries = currentDir.listFiles()
-            ?.sortedWith(compareBy<File> { !it.isDirectory }.thenBy { it.name })
-            ?: emptyList()
+        errorMsg = ""
+        val files = currentDir.listFiles()
+        if (files == null) {
+            errorMsg = "Cannot access this directory.\nTry using the \"Open\" button from the home screen to pick an APK via the system file picker."
+            entries = emptyList()
+        } else {
+            entries = files.sortedWith(compareBy<File> { !it.isDirectory }.thenBy { it.name })
+        }
     }
 
     Scaffold(
@@ -46,6 +60,18 @@ fun FileBrowserScreen(
             )
         }
     ) { padding ->
+        if (errorMsg.isNotEmpty()) {
+            Box(
+                modifier = Modifier.fillMaxSize().padding(padding),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(32.dp)) {
+                    Icon(Icons.Default.Lock, null, modifier = Modifier.size(48.dp), tint = MaterialTheme.colorScheme.error)
+                    Spacer(Modifier.height(16.dp))
+                    Text(errorMsg, color = MaterialTheme.colorScheme.error)
+                }
+            }
+        } else {
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -100,6 +126,7 @@ fun FileBrowserScreen(
                     }
                 )
             }
+        }
         }
     }
 }
