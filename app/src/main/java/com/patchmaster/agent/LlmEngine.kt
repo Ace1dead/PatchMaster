@@ -109,7 +109,7 @@ class LlmEngine(private val apiKey: String?) {
                 }
 
                 val json = JSONObject(responseText)
-                val choice = json.getJSONArray("choices")?.optJSONObject(0)
+                val choice = json.getJSONArray("choices").optJSONObject(0)
                 val content = choice?.optJSONObject("message")?.optString("content", "") ?: ""
 
                 val usageJson = json.optJSONObject("usage")

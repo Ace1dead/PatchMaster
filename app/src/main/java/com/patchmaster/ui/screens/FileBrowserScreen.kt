@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.InsertDriveFile
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -54,7 +56,7 @@ fun FileBrowserScreen(
                         if (currentDir.parentFile != null) currentDir = currentDir.parentFile
                         else onNavigateBack()
                     }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 }
             )
@@ -108,7 +110,7 @@ fun FileBrowserScreen(
                                 isApk -> Icons.Default.Android
                                 isDecompiled -> Icons.Default.Code
                                 isDir -> Icons.Default.Folder
-                                else -> Icons.Default.InsertDriveFile
+                                else -> Icons.AutoMirrored.Filled.InsertDriveFile
                             },
                             contentDescription = null,
                             tint = when {
