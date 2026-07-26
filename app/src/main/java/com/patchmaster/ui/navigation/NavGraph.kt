@@ -8,6 +8,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.patchmaster.ui.screens.*
 import com.patchmaster.PatchMasterApp
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
 
@@ -118,7 +121,7 @@ fun PatchMasterNavHost(
                 onApplyTemplate = { template ->
                     if (viewModel.currentApkPath.isNotEmpty()) {
                         PatchMasterApp.instance.aresAgent.setApkPath(viewModel.currentApkPath)
-                        kotlinx.coroutines.GlobalScope.launch(kotlinx.coroutines.Dispatchers.Main) {
+                        GlobalScope.launch(Dispatchers.Main) {
                             PatchMasterApp.instance.aresAgent.processInput(
                                 "Apply ${template.name} mod to the APK"
                             )
